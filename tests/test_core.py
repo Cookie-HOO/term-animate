@@ -358,15 +358,13 @@ def test_stateful_weather_animates_rain_and_switches_to_a_sky_only_idle_scene() 
     assert any("\\!/" in text for text in active_cycle_text)
     assert any(".,." in text for text in active_cycle_text)
     assert all(",i," not in text and ".;%;." not in text for text in active_cycle_text)
-    assert "(o)" in idle_text and idle_text.count(".--.") >= 2
-    assert tuple(row.text.index(marker) for row, marker in zip(idle.rows[:3], (".--.", ".-(", "(__"), strict=True)) == tuple(
-        row.text.index(marker)
-        for row, marker in zip(active_at_idle_phase.rows[:3], (".--.", ".-(", "(__"), strict=True)
-    )
+    assert "(o)" in idle_text
+    assert any("-" in row.text and "." in row.text for row in idle.rows[:3])
+    assert tuple(row.text for row in idle.rows[:3]) != tuple(row.text for row in active_at_idle_phase.rows[:3])
     assert "\\!/" not in idle_text and ".,." not in idle_text and "~_" not in idle_text
     assert all("|" not in row.text for row in idle.rows[3:])
     sun_center = idle.rows[1].text.index("(o)") + 1
-    cloud_center = (idle.rows[0].text.index(".--.") + idle.rows[0].text.rindex(".--.") + 3) // 2
+    cloud_center = next(row.text.index(".") for row in idle.rows[:3] if "." in row.text)
     assert sun_center < cloud_center
     idle_later = project_effect(
         effect,
@@ -424,7 +422,7 @@ def test_ascii_clocks_use_aspect_corrected_and_block_digit_art() -> None:
     now = datetime(2026, 1, 1, 12, 34, 56, tzinfo=UTC)
     analog = project_effect(
         catalog.effect("analog-clock"),
-        ProjectionRequest(Viewport(30, 13), capabilities, wall_time=now),
+        ProjectionRequest(Viewport(40, 13), capabilities, wall_time=now),
     )
     digital = project_effect(
         catalog.effect("digital-clock"),
@@ -434,13 +432,17 @@ def test_ascii_clocks_use_aspect_corrected_and_block_digit_art() -> None:
     digital_text = "\n".join(row.text for row in digital.rows)
     assert analog_text.count(".") > 20
     assert all(str(number) in analog_text for number in range(1, 13))
-    center_column = 30 // 2 - 1
-    assert analog.rows[0].text.index("12") == center_column - 1
-    assert analog.rows[0].text.index("12") + 1 == center_column
-    assert analog.rows[-1].text.index("6") == center_column
+    artwork_left = (40 - 31) // 2
+    face_axis = artwork_left + 31 // 2
+    assert analog.rows[0].text.index("12") == face_axis - 1
+    assert analog.rows[-1].text.index("6") == face_axis
     seven_row = next(row.text for row in analog.rows if "7" in row.text and "5" in row.text)
-    assert seven_row.index("7") + seven_row.index("5") == 2 * center_column
-    assert all(display_width(row.text) == 30 for row in analog.rows)
+    assert seven_row.index("7") + seven_row.index("5") == 2 * face_axis
+    cardinal_row = next(row.text for row in analog.rows if "9" in row.text and "3" in row.text)
+    assert cardinal_row.index("9") + cardinal_row.index("3") == 2 * face_axis
+    assert cardinal_row.index("9") <= face_axis - 14
+    assert cardinal_row.index("3") >= face_axis + 14
+    assert all(display_width(row.text) == 40 for row in analog.rows)
     assert any(glyph in analog_text for glyph in "-|/\\")
     assert "h" not in analog_text and "m" not in analog_text and "s" not in analog_text
     assert digital_text.count("#") > 30
@@ -624,7 +626,8 @@ def test_curated_text_artwork_uses_theme_roles_and_preserves_source_text() -> No
     assert tuple(row.text for row in weather.rows) == tuple(row.text for row in weather_plain.rows)
     assert {cell.foreground for cell in weather.rows[0].cells if cell.text != " "} == {theme.muted}
     assert {cell.foreground for cell in weather.rows[3].cells if cell.text == "|"} == {theme.accent}
-    assert {cell.foreground for cell in weather.rows[-1].cells if cell.text != " "} == {theme.artwork}
+    ground = next(row for row in weather.rows if "~" in row.text)
+    assert {cell.foreground for cell in ground.cells if cell.text != " "} == {theme.artwork}
     assert all(cell.foreground is None for row in weather_plain.rows for cell in row.cells)
 
     impact = project_effect(
@@ -633,8 +636,9 @@ def test_curated_text_artwork_uses_theme_roles_and_preserves_source_text() -> No
     )
     assert any(
         cell.foreground == theme.accent
-        for cell in impact.rows[-2].cells
-        if cell.text != " "
+        for row in impact.rows
+        for cell in row.cells
+        if cell.text in {"\\", "!", "/", ".", ","}
     )
     idle = project_effect(
         weather_effect,

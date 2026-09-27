@@ -51,18 +51,18 @@ class _TraversalClock:
 
 
 @dataclass(slots=True)
-class _WeatherClock:
+class _NatureClock:
     paused_total: float = 0.0
     paused_at: float | None = None
     frozen_seconds: float | None = None
     pause_label: str | None = None
 
-    def weather_seconds(self, source_seconds: float) -> float:
+    def nature_seconds(self, source_seconds: float) -> float:
         return self.frozen_seconds if self.frozen_seconds is not None else source_seconds - self.paused_total
 
     def pause(self, source_seconds: float, label: str) -> None:
         if self.frozen_seconds is None:
-            self.frozen_seconds = self.weather_seconds(source_seconds)
+            self.frozen_seconds = self.nature_seconds(source_seconds)
             self.paused_at = source_seconds
             self.pause_label = label
 
@@ -87,7 +87,7 @@ class GalleryState:
     help_visible: bool = False
     details_visible: bool = False
     _traversal: _TraversalClock = field(default_factory=_TraversalClock)
-    _weather: _WeatherClock = field(default_factory=_WeatherClock)
+    _nature: _NatureClock = field(default_factory=_NatureClock)
 
     @property
     def effect(self) -> Effect:
@@ -95,7 +95,7 @@ class GalleryState:
 
     @property
     def pause_label(self) -> str | None:
-        return self._weather.pause_label
+        return self._nature.pause_label
 
     def move(self, amount: int, elapsed: float) -> None:
         self.index = (self.index + amount) % len(self.effects)
@@ -105,10 +105,10 @@ class GalleryState:
     def toggle_pause(self, elapsed: float, pause_label: str = "paused") -> None:
         if self.paused:
             self._traversal.resume(elapsed)
-            self._weather.resume(elapsed)
+            self._nature.resume(elapsed)
         else:
             self._traversal.freeze(elapsed, pause_label)
-            self._weather.pause(elapsed, pause_label)
+            self._nature.pause(elapsed, pause_label)
         self.paused = not self.paused
         self.frozen_at = elapsed
 
@@ -130,9 +130,9 @@ class GalleryState:
             return self.traversal_frozen_at, None, self.traversal_pause_label
         return None, self._traversal.traversal_seconds(source_seconds), None
 
-    def weather_request(self, source_seconds: float) -> tuple[float, LogicalState, str | None]:
+    def nature_request(self, source_seconds: float) -> tuple[float, LogicalState, str | None]:
         return (
-            self._weather.weather_seconds(source_seconds),
+            self._nature.nature_seconds(source_seconds),
             LogicalState.IDLE if self.paused else LogicalState.ACTIVE,
             self.pause_label,
         )
@@ -274,14 +274,14 @@ def run_gallery(
                         traversal_pause_label=traversal_label,
                     )
                 elif state.effect.category == EffectCategory.NATURE:
-                    weather_seconds, logical_state, label = state.weather_request(source_seconds)
+                    nature_seconds, logical_state, label = state.nature_request(source_seconds)
                     request = ProjectionRequest(
                         viewport=request.viewport,
                         capabilities=request.capabilities,
                         theme=request.theme,
-                        monotonic_seconds=weather_seconds,
+                        monotonic_seconds=nature_seconds,
                         wall_time=wall_time,
-                        logical_state=logical_state,
+                        logical_state=logical_state if state.effect.supports_state else None,
                         pause_label=label,
                     )
                 frame = project_effect(state.effect, request)

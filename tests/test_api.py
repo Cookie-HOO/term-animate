@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 import pytest
 
 from term_animate import (
+    ArtworkPresentation,
     EffectCategory,
     LogicalState,
     ProjectionRequest,
@@ -19,16 +20,32 @@ from term_animate import (
 CAPABILITIES = TerminalCapabilities(color="truecolor")
 
 
-def test_curated_catalog_has_only_the_stable_five_effects() -> None:
+def test_curated_catalog_has_the_stable_nine_effects() -> None:
     catalog = curated_catalog()
-    assert [pack.id for pack in catalog.packs] == ["curated-five"]
+    assert [pack.id for pack in catalog.packs] == ["curated-nine"]
     assert [(effect.category, effect.style, effect.id, effect.name) for effect in catalog.effects()] == [
         (EffectCategory.ANIMAL, "mole-cat", "mole-cat", "Mole Cat"),
         (EffectCategory.ANIMAL, "campy-cat", "campy-cat", "Campy Cat"),
         (EffectCategory.NATURE, "rain", "rain", "Rain"),
+        (EffectCategory.NATURE, "snow", "snow", "Snow"),
+        (EffectCategory.NATURE, "night-sky", "night-sky", "Night Sky"),
+        (EffectCategory.NATURE, "lightning", "lightning", "Lightning"),
+        (EffectCategory.NATURE, "meteor-shower", "meteor-shower", "Meteor Shower"),
         (EffectCategory.TIME, "analog-clock", "analog-clock", "Analog Clock"),
         (EffectCategory.TIME, "digital-clock", "digital-clock", "Digital Clock"),
     ]
+
+
+def test_curated_effects_declare_category_presentation_strategies() -> None:
+    catalog = curated_catalog()
+    assert all(
+        catalog.effect(effect_id).presentation == ArtworkPresentation.FIXED
+        for effect_id in ("mole-cat", "campy-cat", "analog-clock", "digital-clock")
+    )
+    assert all(
+        catalog.effect(effect_id).presentation == ArtworkPresentation.RESPONSIVE_FILL
+        for effect_id in ("rain", "snow", "night-sky", "lightning", "meteor-shower")
+    )
 
 
 def test_select_effect_accepts_category_values_and_rejects_unknown_values() -> None:
@@ -42,6 +59,8 @@ def test_select_effect_accepts_category_values_and_rejects_unknown_values() -> N
         select_effect("animal", "mole")
     with pytest.raises(KeyError, match="unknown effect selection"):
         select_effect("animal", "unknown")
+    with pytest.raises(KeyError, match="unknown effect selection"):
+        select_effect("nature", "ocean-waves")
 
 
 def test_one_call_facade_matches_the_low_level_projection() -> None:
@@ -102,6 +121,28 @@ def test_theme_style_and_viewport_are_current_call_inputs() -> None:
     assert all(len(row.text) == 60 for row in second.rows)
     assert all(len(row.text) == 100 for row in resized.rows)
     assert second != resized
+
+
+def test_viewport_is_the_only_size_input_for_category_specific_projection() -> None:
+    nature = project_curated(
+        "nature",
+        "rain",
+        viewport=Viewport(80, 14),
+        capabilities=CAPABILITIES,
+        monotonic_seconds=1.0,
+        logical_state=LogicalState.ACTIVE,
+    )
+    clock = project_curated(
+        "time",
+        "analog-clock",
+        viewport=Viewport(80, 14),
+        capabilities=CAPABILITIES,
+        wall_time=datetime(2026, 9, 27, 13, 45, 2, tzinfo=UTC),
+    )
+    assert len(nature.rows) == len(clock.rows) == 14
+    assert all(len(row.text) == 80 for row in nature.rows + clock.rows)
+    assert max(len(row.text.strip()) for row in nature.rows) == 60
+    assert max(len(row.text.strip()) for row in clock.rows) < 80
 
 
 def test_custom_theme_tokens_and_state_are_forwarded_without_persistence() -> None:

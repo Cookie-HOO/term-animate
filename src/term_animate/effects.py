@@ -2,7 +2,14 @@
 
 from __future__ import annotations
 
-from term_animate.models import Effect, EffectCategory, Frame, ProjectedFrame, ProjectionRequest
+from term_animate.models import (
+    ArtworkPresentation,
+    Effect,
+    EffectCategory,
+    Frame,
+    ProjectedFrame,
+    ProjectionRequest,
+)
 from term_animate.projectors.layers import compose_layers
 from term_animate.projectors.motion import sample_horizontal_bounce
 from term_animate.projectors.raster import project_raster
@@ -77,7 +84,14 @@ def project_effect(effect: Effect, request: ProjectionRequest) -> ProjectedFrame
         deadline = min(deadlines) if deadlines else None
         return _with_pause_label(ProjectedFrame(rows, 0, _unscale_deadline(deadline, request), "layered-text"), request)
     if effect.renderer == "scene":
-        return _with_pause_label(project_scene(effect.scene or "", request), request)
+        return _with_pause_label(
+            project_scene(
+                effect.scene or "",
+                request,
+                responsive_fill=effect.presentation == ArtworkPresentation.RESPONSIVE_FILL,
+            ),
+            request,
+        )
 
     frame_index, deadline = select_frame(effect.rasters, elapsed)
     rows = project_raster(effect.rasters[frame_index], request)

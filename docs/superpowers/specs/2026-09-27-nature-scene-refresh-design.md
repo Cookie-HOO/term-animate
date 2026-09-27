@@ -2,45 +2,59 @@
 
 ## Goal
 
-Improve the curated snow, night-sky, and ocean-wave terminal scenes while giving all nature scenes a taller internal composition. The public projection API, state model, color-role handling, and viewport clipping behavior remain unchanged.
+Provide five deterministic, stateful nature scenes whose responsive layouts preserve the established
+60×14 scene ratio, preserve every literal ASCII component at its original terminal-cell size, and
+add scene density or motion distance rather than rescaling artwork.
 
-## Scope
+## Shared Nature Canvas
 
-### Shared Nature Canvas
+- All `nature` effects, including rain, use the largest 60:14 contained scene inside the host
+  viewport.
+- The host still receives exactly viewport-sized rows. A mismatched pane ratio receives centered,
+  unstyled whitespace rather than stretched glyphs.
+- Larger ratio-matched scenes procedurally add particles, repeated motifs, and travel distance;
+  stars, clouds, drops, bolts, meteors, and crescents never scale. Weather scenes use a bounded,
+  width-derived collection of two to four independently moving cloud decks: two clouds are
+  widely edge-separated at the canonical width, while wider canvases deliberately add evenly
+  distributed decks.
+- `project_styled_rows()` remains the final bounds, terminal-capability, styling, and centering path.
 
-- Change the internal nature-scene canvas from 60x10 to 60x14.
-- Preserve `project_styled_rows()` as the sole viewport projection path, so callers with short viewports receive clipped output and callers with 60x14 or larger viewports see the added vertical composition.
-- Keep rain on its existing independent 60x10 weather canvas because its accepted geometry and tests are intentionally specific to that scene.
+## Scene Behavior
 
-### Snow
-
-- Use `_draw_weather_clouds()` for the active snow cloud deck, including its deterministic horizontal drift.
-- Use the same cloud geometry at phase zero in `IDLE`, matching rain's paused cloud treatment without scrolling or a redraw deadline.
-- Render deterministic flakes through the sky rows. Each flake advances one row per phase, remains in its selected column for a full fall, and reaches the snowbank.
-- Show a short-lived accent landing mark immediately above the snowbank after a flake reaches its destination, then begin its next trajectory in a newly selected deterministic column.
-
-### Night Sky
-
-- Replace the moon, stars, terrain, and all other visible artwork with a single foreground `)` crescent.
-- Keep the result identical in `ACTIVE` and `IDLE`; idle therefore has no redraw deadline and active does not request needless animated redraws.
-
-### Ocean Waves
-
-- Replace isolated blocks of repeated glyphs with a complete, layered sea composition: a calm horizon, distant rollers, moving foam crests, a broad foreground swell, and a dense waterline.
-- Use repeating ASCII motifs shifted horizontally at different deterministic rates when `ACTIVE`; wind the phase-based patterns across all 60 columns so movement is legible without broken gaps.
-- Render phase-zero stable water in `IDLE`, with no redraw deadline.
-
-## Testing
-
-- Extend nature-scene coverage to request a 60x14 viewport and verify the expanded height while retaining the existing narrow-viewport bounds tests.
-- Add snow assertions showing active cloud drift, flakes in fall rows, and a landing mark adjacent to the snowbank; verify idle retains clouds but contains no falling flakes or landing marks.
-- Assert the night-sky text is exactly one `)` and is invariant across logical state and time with no active deadline.
-- Assert ocean active frames differ across phases and contain every intended sea layer; assert idle is stable and has no deadline.
-- Run the focused nature tests and the complete project verification commands listed in the README.
+- **Rain / Snow:** retain deterministic cloud decks, expand particle count and fall range with the
+  contained canvas, and render ground or snowbank layers across its width. Idle is calm and has no
+  redraw deadline.
+- **Night Sky:** retains a persistent one-cell crescent and a deterministic twinkling star field
+  through the full sky above a shared bottom `^^^` mountain ridge. The moon is never hidden;
+  active stars animate and idle has no redraw deadline.
+- **Lightning:** is an active rainy thunderstorm: it reuses the deterministic rain, splash, and
+  waterline behavior while retaining seekable storm clusters with irregular quiet gaps. Its cloud
+  deck drifts through those gaps, and each cluster displays one or two distinct single-cell bolts
+  that reach the row above the waterline, with occasional deterministic forks. A strike flashes
+  secondary accent, accent, then secondary accent; that final color is held briefly before it
+  disappears. Falling rain immediately around the bolt follows the current strike color, while
+  distant rain and all splashes retain the accent role and the waterline retains artwork. Active
+  projections return the earliest weather or strike-envelope transition deadline; idle is a static,
+  rain-free sun-and-cloud scene
+  with no strike or redraw deadline.
+- **Meteor Shower:** retains a persistent one-cell crescent and star field above the shared
+  bottom `^^^` mountain ridge; active frames add deterministic moving meteor trails while idle
+  remains still.
 
 ## Constraints
 
-- Use printable ASCII only.
-- Do not add dependencies or alter catalog identifiers, scene identifiers, ownership, or public API signatures.
-- Preserve deterministic projection: equal effect and request inputs yield equal frames.
-- Preserve no-color geometry and theme-dependent color role behavior.
+- Use printable ASCII only and do not alter catalog IDs, scene IDs, ownership, or public API
+  signatures.
+- Keep projection pure and deterministic: equal effect/request inputs yield equal output.
+- Preserve no-color text geometry, theme-dependent color roles, exact viewport bounds, and
+  host-owned timing/state decisions.
+
+## Testing
+
+- Exercise all five nature effects in canonical, larger matched-ratio, wide, tall, tiny, and zero
+  viewports; verify contained bounds and blank gutters as applicable.
+- Check density/movement increases for expanded ratio-matched rain and snow without glyph
+  duplication.
+- Require persistent crescents for Night Sky and Meteor Shower in both logical states.
+- Sample Lightning across irregular seekable times to observe quiet, single-bolt, and paired-bolt
+  clusters, verify nonuniform transition gaps, exact repeatability, and idle no-deadline behavior.

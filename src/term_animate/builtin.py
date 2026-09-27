@@ -1,4 +1,4 @@
-"""The immutable five-effect curated catalog."""
+"""The immutable nine-effect curated catalog."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from term_animate.assets.campy import import_campy
 from term_animate.assets.mole import load_mole_frames
 from term_animate.catalog import Catalog
 from term_animate.models import (
+    ArtworkPresentation,
     DerivationKind,
     Effect,
     EffectCategory,
@@ -90,6 +91,7 @@ def _mole_cat() -> Effect:
         frames=right_frames,
         horizontal_motion=HorizontalMotion(reverse_frame_mode="source", reverse_frames=left_frames),
         tags=("pet", "walk", "bounce", "ascii"),
+        presentation=ArtworkPresentation.FIXED,
     )
 
 
@@ -107,6 +109,7 @@ def _campy_cat_traverse() -> Effect:
         category=EffectCategory.ANIMAL,
         style="campy-cat",
         horizontal_motion=HorizontalMotion(initial_direction="right-to-left"),
+        presentation=ArtworkPresentation.FIXED,
     )
 
 
@@ -120,6 +123,7 @@ def _scene(
     ownership: OwnershipClass = OwnershipClass.CCUV_HOSTED_GALLERY,
     category: EffectCategory,
     style: str,
+    presentation: ArtworkPresentation = ArtworkPresentation.FIXED,
 ) -> Effect:
     return Effect(
         id=effect_id,
@@ -133,6 +137,7 @@ def _scene(
         scene=scene,
         supports_state=ownership == OwnershipClass.CCUV_HOSTED_STATEFUL,
         tags=tags,
+        presentation=presentation,
     )
 
 
@@ -151,6 +156,51 @@ def curated_catalog() -> Catalog:
             ownership=OwnershipClass.CCUV_HOSTED_STATEFUL,
             category=EffectCategory.NATURE,
             style="rain",
+            presentation=ArtworkPresentation.RESPONSIVE_FILL,
+        ),
+        _scene(
+            "snow",
+            "Snow",
+            "Falling snow over a winter sky and snowbank, or a calm settled scene when idle.",
+            "ascii-snow",
+            tags=("weather", "winter", "snow", "ascii", "stateful"),
+            ownership=OwnershipClass.CCUV_HOSTED_STATEFUL,
+            category=EffectCategory.NATURE,
+            style="snow",
+            presentation=ArtworkPresentation.RESPONSIVE_FILL,
+        ),
+        _scene(
+            "night-sky",
+            "Night Sky",
+            "A moonlit horizon with twinkling stars, or a still night sky when idle.",
+            "ascii-night-sky",
+            tags=("sky", "stars", "night", "ascii", "stateful"),
+            ownership=OwnershipClass.CCUV_HOSTED_STATEFUL,
+            category=EffectCategory.NATURE,
+            style="night-sky",
+            presentation=ArtworkPresentation.RESPONSIVE_FILL,
+        ),
+        _scene(
+            "lightning",
+            "Lightning",
+            "A deterministic rainy thunderstorm with lightning flashes, or a calm sun-and-cloud scene when idle.",
+            "ascii-lightning",
+            tags=("weather", "storm", "lightning", "ascii", "stateful"),
+            ownership=OwnershipClass.CCUV_HOSTED_STATEFUL,
+            category=EffectCategory.NATURE,
+            style="lightning",
+            presentation=ArtworkPresentation.RESPONSIVE_FILL,
+        ),
+        _scene(
+            "meteor-shower",
+            "Meteor Shower",
+            "A star field crossed by deterministic meteors, or a still sky when idle.",
+            "ascii-meteor-shower",
+            tags=("sky", "stars", "meteor", "ascii", "stateful"),
+            ownership=OwnershipClass.CCUV_HOSTED_STATEFUL,
+            category=EffectCategory.NATURE,
+            style="meteor-shower",
+            presentation=ArtworkPresentation.RESPONSIVE_FILL,
         ),
         _scene(
             "analog-clock",
@@ -171,5 +221,4 @@ def curated_catalog() -> Catalog:
             style="digital-clock",
         ),
     )
-    return Catalog((Pack("curated-five", "Curated five", effects),), themes=ccuv_themes())
-
+    return Catalog((Pack("curated-nine", "Curated nine", effects),), themes=ccuv_themes())

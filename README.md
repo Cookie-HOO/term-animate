@@ -1,18 +1,22 @@
 # term-animate
 
-`term-animate` is a host-neutral Python library for projecting five curated terminal animations
+`term-animate` is a host-neutral Python library for projecting nine curated terminal animations
 into a caller-provided viewport. It also provides a standalone gallery and explicit local
 PNG/SVG/GIF-to-terminal-animation preparation.
 
 ## Curated effects
 
-The distributed catalog is intentionally fixed at five selection pairs:
+The distributed catalog is intentionally fixed at nine selection pairs:
 
 | Category | Style | Effect ID |
 | --- | --- | --- |
 | `animal` | `mole-cat` | `mole-cat` |
 | `animal` | `campy-cat` | `campy-cat` |
 | `nature` | `rain` | `rain` |
+| `nature` | `snow` | `snow` |
+| `nature` | `night-sky` | `night-sky` |
+| `nature` | `lightning` | `lightning` |
+| `nature` | `meteor-shower` | `meteor-shower` |
 | `time` | `analog-clock` | `analog-clock` |
 | `time` | `digital-clock` | `digital-clock` |
 
@@ -37,10 +41,12 @@ frame = project_curated(
     viewport=Viewport(columns=current_pane_width, rows=current_pane_height),
     capabilities=capabilities,
     theme="dracula",
-    monotonic_seconds=effective_weather_seconds,
+    monotonic_seconds=effective_nature_seconds,
     logical_state=LogicalState.ACTIVE,
 )
 ```
+
+For a new theme, style, or pane size, issue another projection with new arguments. `viewport` is the only size input: animal art moves within it without stretching, clocks retain their fixed presentation centered inside it, and every nature scene procedurally adds particles, motifs, and travel distance while preserving its original glyph sizes. Wider weather scenes deliberately add a bounded number of independently moving clouds; all nature scenes use the same established fixed scene ratio, and panes with another ratio receive centered whitespace rather than stretched ASCII art.
 
 For a new theme, style, or pane size, issue another projection with new arguments:
 
@@ -76,6 +82,10 @@ frame = project(
 its next redraw from that value. The library never performs terminal I/O, reads input, runs a timer,
 keeps selection/theme/viewport state, accesses application data, or imports ccuv.
 
+All five nature scenes accept host-selected `LogicalState.ACTIVE` / `LogicalState.IDLE`: active renders their
+animated form and idle renders a calm form without a redraw deadline. The host owns state selection and the
+effective monotonic clock used to pause or rebase animation.
+
 See [`docs/embedding.md`](docs/embedding.md) for traversal and state ownership details.
 
 ## Gallery and command line
@@ -110,7 +120,7 @@ uv run term-animate render logo --pack ./prepared --width 60 --height 20
 uv run term-animate gallery --pack ./prepared --effect logo
 ```
 
-Prepared local packs are not downloaded, bundled, or merged into the five curated effects.
+Prepared local packs are not downloaded, bundled, or merged into the nine curated effects.
 
 ## Boundaries
 

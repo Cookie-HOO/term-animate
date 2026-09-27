@@ -3,7 +3,7 @@
 This distribution contains declarative frame data only. It does not include or execute upstream
 runtimes, terminal loops, application shells, editor code, or network functionality.
 
-The curated catalog has five effects. Its weather and clocks are original `term-animate` scenes; the
+The curated catalog's nature scenes and clocks are original `term-animate` scenes; the
 two cats below are the only distributed third-party visual source material.
 
 ## Mole Cat

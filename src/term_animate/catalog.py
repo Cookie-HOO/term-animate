@@ -86,7 +86,7 @@ def embedding_targets(effect: Effect) -> frozenset[str]:
     if effect.ownership == OwnershipClass.EXTERNAL_STANDALONE:
         return frozenset({"standalone"})
     if effect.ownership == OwnershipClass.CCUV_HOSTED_GALLERY:
-        return frozenset({"standalone", "pane", "banner"})
+        return frozenset({"standalone", "pane", "banner", "monitor"})
     return frozenset({"standalone", "pane", "banner", "monitor"})
 
 

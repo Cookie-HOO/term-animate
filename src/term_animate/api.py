@@ -21,7 +21,7 @@ from term_animate.models import (
 
 
 def curated_catalog() -> Catalog:
-    """Return the fixed five-effect catalog and its named presentation themes."""
+    """Return the fixed nine-effect catalog and its named presentation themes."""
 
     return _curated_catalog()
 

@@ -16,7 +16,7 @@ frame = project_curated(
     viewport=Viewport(columns=pane_width, rows=pane_height),
     capabilities=TerminalCapabilities(color="truecolor"),
     theme="dracula",
-    monotonic_seconds=effective_weather_seconds,
+    monotonic_seconds=effective_nature_seconds,
     logical_state=LogicalState.ACTIVE,
 )
 ```
@@ -30,6 +30,13 @@ to `project()` / `project_curated()` when the host has resolved its own palette.
 
 Every call returns a `ProjectedFrame` with display-width-bounded `StyledRow` values and an absolute
 monotonic `next_deadline_seconds`. A host owns the redraw scheduler and terminal serialization.
+
+`viewport` is the only host-supplied size and the final emitted pane rectangle. Animal effects move
+within it without stretching their source art and time effects retain a fixed contained presentation.
+Every nature effect procedurally adds particles, motifs, and travel distance while retaining its
+original glyph sizes; wider weather scenes also deliberately add a bounded number of independently
+moving clouds. All preserve the same established scene ratio and use centered whitespace when a pane
+has a different ratio. A resize only requires another projection with the updated `Viewport`.
 
 ## Host ownership
 
@@ -49,8 +56,9 @@ never performs terminal I/O, creates a timer/thread, reads provider/application 
 ## Time, state, and traversal
 
 Clocks consume a timezone-aware `wall_time`; a caller should supply the current display time on every
-call. The `nature/rain` effect accepts only `LogicalState.ACTIVE` / `LogicalState.IDLE`; the host supplies an effective
-monotonic weather clock if pausing needs continuity. Cats can use `traversal_mode="stationary"`, or a
+call. All five `nature` scenes (`rain`, `snow`, `night-sky`, `lightning`, and `meteor-shower`) accept
+only `LogicalState.ACTIVE` / `LogicalState.IDLE`; the host supplies an effective monotonic nature
+clock if pausing needs continuity. Cats can use `traversal_mode="stationary"`, or a
 host can freeze a sampled location with `traversal_monotonic_seconds` while keeping
 `monotonic_seconds` live for source-frame animation.
 

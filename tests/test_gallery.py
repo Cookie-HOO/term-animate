@@ -17,8 +17,8 @@ def test_gallery_pause_applies_curated_presentation_policy() -> None:
     assert state.paused
     assert state.frozen_at == 1.25
     assert state.traversal_request(2.5) == (1.25, None, "paused 14:32:10")
-    assert state.weather_request(2.5)[0] == 1.25
-    assert state.weather_request(2.5)[2] == "paused 14:32:10"
+    assert state.nature_request(2.5)[0] == 1.25
+    assert state.nature_request(2.5)[2] == "paused 14:32:10"
     state.toggle_pause(2.5)
     assert not state.paused
     assert state.frozen_at == 2.5

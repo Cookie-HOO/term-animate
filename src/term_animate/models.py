@@ -53,6 +53,16 @@ class EffectCategory(StrEnum):
     TIME = "time"
 
 
+class ArtworkPresentation(StrEnum):
+    """How an effect interprets the host-supplied viewport.
+
+    Responsive scenes preserve their component glyph sizes within a contained scene ratio.
+    """
+
+    FIXED = "fixed"
+    RESPONSIVE_FILL = "responsive-fill"
+
+
 ColorMode = Literal["none", "ansi16", "ansi256", "truecolor"]
 RendererKind = Literal["text", "layered-text", "raster", "scene"]
 HorizontalDirection = Literal["left-to-right", "right-to-left"]
@@ -246,6 +256,7 @@ class Effect:
     horizontal_motion: HorizontalMotion | None = None
     supports_state: bool = False
     tags: tuple[str, ...] = ()
+    presentation: ArtworkPresentation = ArtworkPresentation.FIXED
 
     def __post_init__(self) -> None:
         if not self.id or not self.name or not self.description.strip():

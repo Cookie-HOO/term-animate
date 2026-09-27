@@ -12,21 +12,38 @@ def test_list_command_shows_only_curated_effects(capsys) -> None:
     assert "mole-cat" in output
     assert "campy-cat" in output
     assert "Rain" in output
+    assert "Snow" in output
+    assert "Night Sky" in output
+    assert "Ocean Waves" not in output
+    assert "Lightning" in output
+    assert "Meteor Shower" in output
     assert "Analog Clock" in output
     assert "Digital Clock" in output
     assert "durdraw-rain" not in output
 
 
 def test_list_json_exposes_the_single_curated_pack(capsys) -> None:
-    assert main(["list", "--format", "json", "--pack", "curated-five"]) == 0
+    assert main(["list", "--format", "json", "--pack", "curated-nine"]) == 0
     records = json.loads(capsys.readouterr().out)
     assert [record["id"] for record in records] == [
         "mole-cat",
         "campy-cat",
         "rain",
+        "snow",
+        "night-sky",
+        "lightning",
+        "meteor-shower",
         "analog-clock",
         "digital-clock",
     ]
+
+
+def test_render_uses_one_viewport_size_for_responsive_nature(capsys) -> None:
+    assert main([
+        "render", "rain", "--width", "20", "--height", "4", "--at-seconds", "1", "--state", "active",
+        "--ascii", "--color", "none",
+    ]) == 0
+    assert len(capsys.readouterr().out.rstrip("\n").splitlines()) == 4
 
 
 def test_render_supports_stationary_traversal_mode(capsys) -> None:

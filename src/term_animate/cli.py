@@ -22,6 +22,7 @@ from term_animate.cli_catalog import (
 from term_animate.effects import project_effect
 from term_animate.models import (
     DerivationKind,
+    LogicalState,
     OwnershipClass,
     ProjectionRequest,
     TerminalCapabilities,
@@ -75,6 +76,7 @@ def build_parser() -> argparse.ArgumentParser:
     render.add_argument("--at-seconds", type=float, default=0.0)
     render.add_argument("--at-wall-time", type=_parse_wall_time, help="Timezone-aware ISO-8601 display time.")
     render.add_argument("--animation-rate", type=float, default=1.0)
+    render.add_argument("--state", choices=("active", "idle"))
     render.add_argument("--traversal-mode", choices=("traverse", "stationary"), default="traverse")
     render.add_argument("--traversal-at-seconds", type=float)
     render.add_argument("--pause-label", help="Host-formatted lower-right label displayed with frozen traversal.")
@@ -171,6 +173,7 @@ def main(argv: list[str] | None = None) -> int:
                 monotonic_seconds=args.at_seconds,
                 wall_time=args.at_wall_time,
                 animation_rate=args.animation_rate,
+                logical_state=LogicalState(args.state) if args.state else None,
                 traversal_mode=args.traversal_mode,
                 traversal_monotonic_seconds=args.traversal_at_seconds,
                 traversal_pause_label=args.pause_label,
