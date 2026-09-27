@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.ty/
+dist/
+*.egg-info/
+.DS_Store
+
+# Local-only third-party logo sources and prepared demos; never distribute or commit.
+/.local/logo-demo/

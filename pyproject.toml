@@ -1,0 +1,50 @@
+[project]
+name = "term-animate"
+version = "0.1.0"
+description = "Standalone terminal-art gallery and host-neutral animation library"
+readme = "README.md"
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
+authors = [{ name = "Cookie HOO" }]
+requires-python = ">=3.11,<3.14"
+dependencies = [
+  "cairosvg>=2.7,<3",
+  "pillow>=11,<12",
+  "wcwidth>=0.2.13,<0.3",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Programming Language :: Python :: 3",
+  "Topic :: Multimedia :: Graphics",
+]
+
+[project.scripts]
+term-animate = "term_animate.cli:main"
+
+[tool.uv.build-backend]
+source-include = ["src/term_animate/packs/**", "THIRD_PARTY_NOTICES.md"]
+
+[build-system]
+requires = ["uv_build>=0.9.28,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+  "pytest>=8.4,<9",
+  "ruff>=0.13,<0.14",
+  "ty>=0.0.1a20,<0.1",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
