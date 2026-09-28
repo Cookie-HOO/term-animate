@@ -20,10 +20,11 @@ from term_animate import (
 CAPABILITIES = TerminalCapabilities(color="truecolor")
 
 
-def test_curated_catalog_has_the_stable_nine_effects() -> None:
+def test_curated_catalog_has_the_stable_ten_effects() -> None:
     catalog = curated_catalog()
-    assert [pack.id for pack in catalog.packs] == ["curated-nine"]
+    assert [pack.id for pack in catalog.packs] == ["curated-ten"]
     assert [(effect.category, effect.style, effect.id, effect.name) for effect in catalog.effects()] == [
+        (EffectCategory.LOGO, "claude-code", "claude-code", "Claude Code"),
         (EffectCategory.ANIMAL, "mole-cat", "mole-cat", "Mole Cat"),
         (EffectCategory.ANIMAL, "campy-cat", "campy-cat", "Campy Cat"),
         (EffectCategory.NATURE, "rain", "rain", "Rain"),
@@ -40,7 +41,7 @@ def test_curated_effects_declare_category_presentation_strategies() -> None:
     catalog = curated_catalog()
     assert all(
         catalog.effect(effect_id).presentation == ArtworkPresentation.FIXED
-        for effect_id in ("mole-cat", "campy-cat", "analog-clock", "digital-clock")
+        for effect_id in ("claude-code", "mole-cat", "campy-cat", "analog-clock", "digital-clock")
     )
     assert all(
         catalog.effect(effect_id).presentation == ArtworkPresentation.RESPONSIVE_FILL

@@ -5,10 +5,11 @@ from term_animate.catalog import embedding_targets
 from term_animate.models import DerivationKind, OwnershipClass
 
 
-def test_curated_catalog_is_the_focused_nine_effect_series() -> None:
+def test_curated_catalog_is_the_focused_ten_effect_series() -> None:
     catalog = curated_catalog()
-    assert [pack.id for pack in catalog.packs] == ["curated-nine"]
+    assert [pack.id for pack in catalog.packs] == ["curated-ten"]
     assert [effect.id for effect in catalog.effects()] == [
+        "claude-code",
         "mole-cat",
         "campy-cat",
         "rain",

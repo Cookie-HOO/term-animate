@@ -1,4 +1,4 @@
-"""The immutable nine-effect curated catalog."""
+"""The immutable ten-effect curated catalog."""
 
 from __future__ import annotations
 
@@ -6,6 +6,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from term_animate.assets.campy import import_campy
+from term_animate.assets.claude_code import load_claude_code_frames
 from term_animate.assets.mole import load_mole_frames
 from term_animate.catalog import Catalog
 from term_animate.models import (
@@ -77,6 +78,23 @@ def _original_provenance(effect_id: str, ownership: OwnershipClass = OwnershipCl
     )
 
 
+def _claude_code() -> Effect:
+    return Effect(
+        id="claude-code",
+        name="Claude Code",
+        description="An animated Claude Code logo that hops across the viewport.",
+        ownership=OwnershipClass.CCUV_HOSTED_GALLERY,
+        renderer="raster",
+        provenance=_original_provenance("claude-code"),
+        category=EffectCategory.LOGO,
+        style="claude-code",
+        rasters=load_claude_code_frames(_ROOT / "claude-code" / "frames.json"),
+        horizontal_motion=HorizontalMotion(columns_per_second=9.0, reverse_frame_mode="identity"),
+        presentation=ArtworkPresentation.FIXED,
+        raster_rows=16,
+    )
+
+
 def _mole_cat() -> Effect:
     right_frames, left_frames = load_mole_frames(_ROOT / "mole" / "cat.json")
     return Effect(
@@ -145,6 +163,7 @@ def curated_catalog() -> Catalog:
     """Return the fixed, host-selectable curated catalog and named themes."""
 
     effects = (
+        _claude_code(),
         _mole_cat(),
         _campy_cat_traverse(),
         _scene(
@@ -221,4 +240,4 @@ def curated_catalog() -> Catalog:
             style="digital-clock",
         ),
     )
-    return Catalog((Pack("curated-nine", "Curated nine", effects),), themes=ccuv_themes())
+    return Catalog((Pack("curated-ten", "Curated ten", effects),), themes=ccuv_themes())

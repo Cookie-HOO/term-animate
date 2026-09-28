@@ -12,7 +12,7 @@ from term_animate.models import (
 )
 from term_animate.projectors.layers import compose_layers
 from term_animate.projectors.motion import sample_horizontal_bounce
-from term_animate.projectors.raster import project_raster
+from term_animate.projectors.raster import project_raster, raster_geometry
 from term_animate.projectors.text import (
     TextStyle,
     overlay_bottom_right,
@@ -42,13 +42,7 @@ def project_effect(effect: Effect, request: ProjectionRequest) -> ProjectedFrame
             if request.traversal_mode == "stationary":
                 offset_columns = (request.viewport.columns - canvas_columns) // 2
             else:
-                traversal_seconds = (
-                    request.traversal_monotonic_seconds
-                    if request.traversal_monotonic_seconds is not None
-                    else request.traversal_clock_seconds
-                    if request.traversal_clock_seconds is not None
-                    else request.monotonic_seconds
-                )
+                traversal_seconds = _traversal_seconds(request)
                 motion = sample_horizontal_bounce(
                     effect.horizontal_motion,
                     elapsed_seconds=traversal_seconds * request.animation_rate,
@@ -94,11 +88,42 @@ def project_effect(effect: Effect, request: ProjectionRequest) -> ProjectedFrame
         )
 
     frame_index, deadline = select_frame(effect.rasters, elapsed)
-    rows = project_raster(effect.rasters[frame_index], request)
+    raster = effect.rasters[frame_index]
+    offset_columns = None
+    if effect.horizontal_motion is not None:
+        geometry = raster_geometry(raster, request, fixed_rows=effect.raster_rows)
+        if request.traversal_mode == "stationary":
+            offset_columns = (request.viewport.columns - geometry.columns) // 2
+        else:
+            traversal_seconds = _traversal_seconds(request)
+            motion = sample_horizontal_bounce(
+                effect.horizontal_motion,
+                elapsed_seconds=traversal_seconds * request.animation_rate,
+                viewport_columns=request.viewport.columns,
+                canvas_columns=geometry.columns,
+            )
+            offset_columns = motion.offset_columns
+            if request.traversal_monotonic_seconds is None:
+                motion_deadline = motion.next_deadline_seconds
+                if request.traversal_clock_seconds is not None:
+                    motion_deadline = elapsed + (motion.next_deadline_seconds - traversal_seconds * request.animation_rate)
+                deadlines = [candidate for candidate in (deadline, motion_deadline) if candidate is not None]
+                deadline = min(deadlines) if deadlines else None
+    rows = project_raster(raster, request, fixed_rows=effect.raster_rows, offset_columns=offset_columns)
     tier = "ascii" if request.capabilities.ascii_only else (
         "no-color" if request.capabilities.color == "none" else "half-block"
     )
     return _with_pause_label(ProjectedFrame(rows, frame_index, _unscale_deadline(deadline, request), tier), request)
+
+
+def _traversal_seconds(request: ProjectionRequest) -> float:
+    return (
+        request.traversal_monotonic_seconds
+        if request.traversal_monotonic_seconds is not None
+        else request.traversal_clock_seconds
+        if request.traversal_clock_seconds is not None
+        else request.monotonic_seconds
+    )
 
 
 def _text_style(effect: Effect, request: ProjectionRequest) -> TextStyle | None:

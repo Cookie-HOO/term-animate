@@ -9,6 +9,7 @@ from term_animate.cli import build_parser, main
 def test_list_command_shows_only_curated_effects(capsys) -> None:
     assert main(["list"]) == 0
     output = capsys.readouterr().out
+    assert "claude-code" in output
     assert "mole-cat" in output
     assert "campy-cat" in output
     assert "Rain" in output
@@ -23,9 +24,10 @@ def test_list_command_shows_only_curated_effects(capsys) -> None:
 
 
 def test_list_json_exposes_the_single_curated_pack(capsys) -> None:
-    assert main(["list", "--format", "json", "--pack", "curated-nine"]) == 0
+    assert main(["list", "--format", "json", "--pack", "curated-ten"]) == 0
     records = json.loads(capsys.readouterr().out)
     assert [record["id"] for record in records] == [
+        "claude-code",
         "mole-cat",
         "campy-cat",
         "rain",

@@ -49,6 +49,7 @@ class EffectCategory(StrEnum):
     """Stable host-facing grouping for curated effects."""
 
     ANIMAL = "animal"
+    LOGO = "logo"
     NATURE = "nature"
     TIME = "time"
 
@@ -66,7 +67,7 @@ class ArtworkPresentation(StrEnum):
 ColorMode = Literal["none", "ansi16", "ansi256", "truecolor"]
 RendererKind = Literal["text", "layered-text", "raster", "scene"]
 HorizontalDirection = Literal["left-to-right", "right-to-left"]
-ReverseFrameMode = Literal["mirror", "source"]
+ReverseFrameMode = Literal["identity", "mirror", "source"]
 TraversalMode = Literal["traverse", "stationary"]
 
 
@@ -198,7 +199,7 @@ class Layer:
 
 @dataclass(frozen=True, slots=True)
 class HorizontalMotion:
-    """Viewport-local horizontal bounce settings for an ordinary text effect."""
+    """Viewport-local horizontal bounce settings for text and raster effects."""
 
     columns_per_second: float = 8.0
     refresh_hz: float = 20.0
@@ -211,8 +212,8 @@ class HorizontalMotion:
             raise ValueError("motion speed must be finite and greater than zero")
         if not isfinite(self.refresh_hz) or self.refresh_hz <= 0:
             raise ValueError("motion refresh rate must be finite and greater than zero")
-        if self.reverse_frame_mode == "mirror" and self.reverse_frames:
-            raise ValueError("mirrored motion must not declare reverse source frames")
+        if self.reverse_frame_mode in {"identity", "mirror"} and self.reverse_frames:
+            raise ValueError("identity and mirrored motion must not declare reverse source frames")
         if self.reverse_frame_mode == "source" and not self.reverse_frames:
             raise ValueError("source motion requires reverse source frames")
         if self.reverse_frames:
@@ -257,6 +258,7 @@ class Effect:
     supports_state: bool = False
     tags: tuple[str, ...] = ()
     presentation: ArtworkPresentation = ArtworkPresentation.FIXED
+    raster_rows: int | None = None
 
     def __post_init__(self) -> None:
         if not self.id or not self.name or not self.description.strip():
@@ -290,8 +292,13 @@ class Effect:
                 raise ValueError("scene effects require one scene identifier only")
         else:
             raise ValueError(f"unknown renderer: {self.renderer}")
-        if self.renderer != "text" and self.horizontal_motion is not None:
-            raise ValueError("horizontal motion is supported by text effects only")
+        if self.horizontal_motion is not None and self.renderer not in {"text", "raster"}:
+            raise ValueError("horizontal motion is supported by text and raster effects only")
+        if self.raster_rows is not None:
+            if self.renderer != "raster":
+                raise ValueError("fixed raster rows are supported by raster effects only")
+            if self.raster_rows <= 0:
+                raise ValueError("fixed raster rows must be positive")
         if self.supports_state != (self.ownership == OwnershipClass.CCUV_HOSTED_STATEFUL):
             raise ValueError("only stateful hosted effects may declare state support")
 

@@ -176,9 +176,12 @@ def gallery_header_rows(state: GalleryState, columns: int, *, theme_name: str = 
     status = " [paused]" if state.paused else ""
     motion = " [stationary]" if state.traversal_mode == "stationary" else " [traverse]"
     movement = " [movement frozen]" if state.traversal_frozen_at is not None else ""
+    identity = "" if effect.category == EffectCategory.LOGO else (
+        f"Origin: {provenance.project} | {provenance.treatment_label} | {provenance.license_spdx} | {effect.ownership}"
+    )
     return (
         clip(f"[ {state.index + 1:02}/{len(state.effects):02} ] {effect.name} · theme {theme_name}{status}{motion}{movement}", columns),
-        clip(f"Origin: {provenance.project} | {provenance.treatment_label} | {provenance.license_spdx} | {effect.ownership}", columns),
+        clip(identity, columns),
         clip("n/]/p/[ browse  Space pause  t/T theme  f freeze movement  s stationary/traverse  i details  ? help  q quit", columns),
     )
 
@@ -194,6 +197,10 @@ def gallery_overlay_rows(state: GalleryState, columns: int, rows: int) -> tuple[
         effect = state.effect
         provenance = effect.provenance
         lines = (
+            f"Details: {effect.name} ({effect.id})",
+            f"What it is: {effect.description}",
+            "i close details  ? help  q quit",
+        ) if effect.category == EffectCategory.LOGO else (
             f"Details: {effect.name} ({effect.id})",
             f"What it is: {effect.description}",
             f"Project: {provenance.project}",
@@ -259,7 +266,7 @@ def run_gallery(
                     wall_time=wall_time,
                     pause_label=state.pause_label,
                 )
-                if state.effect.category == EffectCategory.ANIMAL:
+                if state.effect.horizontal_motion is not None:
                     frozen, traversal_clock, traversal_label = state.traversal_request(source_seconds)
                     request = ProjectionRequest(
                         viewport=request.viewport,

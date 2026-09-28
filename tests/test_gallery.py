@@ -45,7 +45,8 @@ def test_gallery_keys_switch_help_details_and_exit() -> None:
 
 
 def test_gallery_header_and_details_render_provenance() -> None:
-    state = GalleryState(curated_catalog().effects())
+    effects = curated_catalog().effects()
+    state = GalleryState(effects, index=next(index for index, effect in enumerate(effects) if effect.id == "mole-cat"))
     header = gallery_header_rows(state, 120)
     assert "Mole Cat" in header[0]
     assert "[traverse]" in header[0]
@@ -58,3 +59,13 @@ def test_gallery_header_and_details_render_provenance() -> None:
     assert any("Treatment: Adapted" in row for row in detail)
     state.move(1, 0)
     assert "Campy Cat" in gallery_header_rows(state, 120)[0]
+
+
+def test_gallery_hides_logo_provenance_but_keeps_description() -> None:
+    state = GalleryState(curated_catalog().effects())
+    assert "Claude Code" in gallery_header_rows(state, 120)[0]
+    assert gallery_header_rows(state, 120)[1] == ""
+    state.apply("i", 0)
+    detail = gallery_overlay_rows(state, 120, 24)
+    assert any("What it is: An animated Claude Code logo" in row for row in detail)
+    assert not any("Revision:" in row for row in detail)
