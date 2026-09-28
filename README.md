@@ -1,48 +1,57 @@
 # term-animate
 
-`term-animate` is a host-neutral Python library for projecting nine curated terminal animations
-into a caller-provided viewport. It also provides a standalone gallery and explicit local
-PNG/SVG/GIF-to-terminal-animation preparation.
+`term-animate` is a Python library for projecting curated terminal animations into a host-provided viewport. It also includes an interactive, standalone gallery for previewing the bundled artwork locally.
 
-## Curated effects
+The library is host-neutral: it returns styled, bounded terminal rows and leaves terminal output, input, timing, layout, and application state to the program embedding it.
 
-The distributed catalog is intentionally fixed at nine selection pairs:
+`term-animate` was abstracted from visual-material work created for [ccusage-viz](https://github.com/Cookie-HOO/ccusage-viz). It remains a standalone library with no ccusage-viz or ccuv runtime dependency.
 
-| Category | Style | Effect ID |
-| --- | --- | --- |
-| `animal` | `mole-cat` | `mole-cat` |
-| `animal` | `campy-cat` | `campy-cat` |
-| `nature` | `rain` | `rain` |
-| `nature` | `snow` | `snow` |
-| `nature` | `night-sky` | `night-sky` |
-| `nature` | `lightning` | `lightning` |
-| `nature` | `meteor-shower` | `meteor-shower` |
-| `time` | `analog-clock` | `analog-clock` |
-| `time` | `digital-clock` | `digital-clock` |
+## Install and launch the gallery
 
-It ships named palettes compatible with ccuv naming: `classic`, `vivid`, `contrast`, `dracula`,
-`catppuccin`, `solarized`, `gruvbox`, `nord`, `github`, `mono`, and `no-color`.
+Requires Python `>=3.11,<3.14`.
 
-### Sources and licenses
+With [uv](https://docs.astral.sh/uv/):
 
-| Effect | Origin | License |
-| --- | --- | --- |
-| Mole Cat | Adapted from [tw93/Mole](https://github.com/tw93/Mole) | GPL-3.0-only |
-| Campy Cat | Adapted from [dropdevrahul/campy](https://github.com/dropdevrahul/campy) | MIT |
-| Rain, Snow, Night Sky, Lightning, Meteor Shower, Analog Clock, Digital Clock | Original `term-animate` procedural scenes | GPL-3.0-only |
+```bash
+uv tool install term-animate
+term-animate gallery
+```
 
-The distributed package is GPL-3.0-only. Complete upstream revisions, adaptation details, and retained
-license notices are in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+With pip:
 
-## Host API
+```bash
+python -m pip install term-animate
+term-animate gallery
+```
 
-Use `project_curated()` for normal upstream integration. It is pure and stateless: every call
-receives the host's current category, style, viewport, theme, timestamps, and logical state.
-There is no reset or reinitialization protocol when the user changes theme/style or resizes a pane.
+The gallery is a preview tool; applications should embed the library rather than automate it. To open a particular effect with a named theme:
+
+```bash
+term-animate gallery --effect mole-cat --theme dracula
+```
+
+### Development from source
+
+```bash
+uv sync
+uv run term-animate gallery
+```
+
+Gallery controls:
+
+- `n` / `]`, `p` / `[`: browse effects
+- `Space`: pause or resume the preview policy
+- `t` / `T`: switch themes
+- `f`: freeze or resume cat traversal while source frames continue
+- `s`: switch cats between stationary and traverse modes
+- `i`, `?`: show provenance details or help
+- `q`, `Esc`, `Ctrl-C`: exit safely
+
+## Embed in a host
+
+Use `project_curated()` for the usual integration. Each projection is pure and stateless: pass the host's current selection, viewport, terminal capabilities, theme, clocks, and logical state on every call.
 
 ```python
-from datetime import datetime
-
 from term_animate import LogicalState, TerminalCapabilities, Viewport, project_curated
 
 capabilities = TerminalCapabilities(color="truecolor")
@@ -57,28 +66,15 @@ frame = project_curated(
 )
 ```
 
-For a new theme, style, or pane size, issue another projection with new arguments. `viewport` is the only size input: animal art moves within it without stretching, clocks retain their fixed presentation centered inside it, and every nature scene procedurally adds particles, motifs, and travel distance while preserving its original glyph sizes. Wider weather scenes deliberately add a bounded number of independently moving clouds; all nature scenes use the same established fixed scene ratio, and panes with another ratio receive centered whitespace rather than stretched ASCII art.
+Call the function again whenever the selection, theme, or pane size changes. `viewport` is the sole size input: animal art moves within it without stretching, clocks stay centered at their fixed presentation size, and nature scenes adapt procedurally while retaining their glyph sizes.
 
-For a new theme, style, or pane size, issue another projection with new arguments:
+`ProjectedFrame.next_deadline_seconds` is an **absolute monotonic timestamp**. The host owns redraw scheduling and terminal serialization. The library never performs terminal I/O, reads input, runs a timer, stores selection/theme/viewport state, accesses application data, or imports ccuv.
 
-```python
-frame = project_curated(
-    "time",
-    "digital-clock",
-    viewport=Viewport(columns=100, rows=8),  # resized pane
-    capabilities=capabilities,
-    theme="nord",  # newly selected theme
-    monotonic_seconds=now_monotonic,
-    wall_time=datetime.now().astimezone(),
-)
-```
-
-For hosts that manage their own selections or palettes, use composition primitives:
+For hosts that already manage selections and palette tokens, use the lower-level composition primitives:
 
 ```python
-from term_animate import ThemeTokens, curated_catalog, project, select_effect
+from term_animate import ThemeTokens, project, select_effect
 
-catalog = curated_catalog()
 effect = select_effect("animal", "mole-cat")
 frame = project(
     effect,
@@ -89,60 +85,52 @@ frame = project(
 )
 ```
 
-`ProjectedFrame.next_deadline_seconds` is an **absolute monotonic timestamp**. The host schedules
-its next redraw from that value. The library never performs terminal I/O, reads input, runs a timer,
-keeps selection/theme/viewport state, accesses application data, or imports ccuv.
+All five nature scenes accept host-selected `LogicalState.ACTIVE` or `LogicalState.IDLE`; idle scenes have no redraw deadline. Clocks consume timezone-aware `wall_time`, and hosts can control cat traversal separately from source-frame animation.
 
-All five nature scenes accept host-selected `LogicalState.ACTIVE` / `LogicalState.IDLE`: active renders their
-animated form and idle renders a calm form without a redraw deadline. The host owns state selection and the
-effective monotonic clock used to pause or rebase animation.
+See [`docs/embedding.md`](docs/embedding.md) for host ownership, timing, state, traversal, and viewport behavior in detail.
 
-See [`docs/embedding.md`](docs/embedding.md) for traversal and state ownership details.
+## Curated effects and themes
 
-## Gallery and command line
+The fixed catalog contains ten host-selectable effects:
 
-```bash
-uv sync
-uv run term-animate list
-uv run term-animate info mole-cat
-uv run term-animate gallery --effect mole-cat --theme dracula
-uv run term-animate render campy-cat --width 48 --height 18 --at-seconds 0.24
-```
+| Category | Style | Effect ID |
+| --- | --- | --- |
+| `logo` | `claude-code` | `claude-code` |
+| `animal` | `mole-cat` | `mole-cat` |
+| `animal` | `campy-cat` | `campy-cat` |
+| `nature` | `rain` | `rain` |
+| `nature` | `snow` | `snow` |
+| `nature` | `night-sky` | `night-sky` |
+| `nature` | `lightning` | `lightning` |
+| `nature` | `meteor-shower` | `meteor-shower` |
+| `time` | `analog-clock` | `analog-clock` |
+| `time` | `digital-clock` | `digital-clock` |
 
-`gallery` is preview-only; applications should use imports. Its controls are:
+Named palettes are compatible with ccuv naming: `classic`, `vivid`, `contrast`, `dracula`, `catppuccin`, `solarized`, `gruvbox`, `nord`, `github`, `mono`, and `no-color`.
 
-- `n` / `]`, `p` / `[`: browse effects
-- `Space`: pause/resume the preview policy
-- `t` / `T`: switch named themes
-- `f`: freeze/resume cat traversal while source frames continue
-- `s`: toggle cat stationary/traverse mode
-- `i`, `?`: provenance details/help
-- `q`, `Esc`, `Ctrl-C`: exit safely
+## Local image content
 
-## Local image animation preparation
+Local PNG, JPEG, GIF, WebP, APNG, and SVG content can be prepared explicitly as local animation packs. It is never downloaded, bundled, or merged into the immutable curated catalog. SVG preparation requires CairoSVG and its platform Cairo library.
 
-Local content remains outside the immutable curated catalog. Prepare explicitly chosen PNG, JPEG,
-GIF, WebP, APNG, or SVG files, then render or preview them by explicit path. Animated inputs retain
-prepared frame order and durations. SVG preparation requires CairoSVG and its platform Cairo library.
-
-```bash
-uv run term-animate prepare image --input ./logo.gif --output ./prepared --effect-id logo
-uv run term-animate render logo --pack ./prepared --width 60 --height 20
-uv run term-animate gallery --pack ./prepared --effect logo
-```
-
-Prepared local packs are not downloaded, bundled, or merged into the nine curated effects.
+See [`docs/asset-format.md`](docs/asset-format.md) for supported formats and pack details, and [`docs/asset-policy.md`](docs/asset-policy.md) for catalog and distribution policy.
 
 ## Boundaries
 
-A future ccuv integration owns layout, resize observation, rendering, terminal lifecycle, input,
-timing, scheduling, preference persistence, theme resolution, and logical activity decisions.
-`term-animate` receives those resolved presentation inputs and returns bounded styled rows.
+A future ccuv integration owns layout, resizing, rendering, terminal lifecycle, input, scheduling, preference persistence, theme resolution, and logical activity decisions. This repository contains no ccuv adapter or ccuv integration tests.
 
-This repository contains no ccuv adapter or ccuv integration tests. It does not collect or interpret
-provider, token, session, request, cost, quota, account, or product data.
+`term-animate` does not collect or interpret provider, token, session, request, cost, quota, account, or product data.
 
-## Development
+## Sources and licenses
+
+| Effect | Origin | License |
+| --- | --- | --- |
+| Claude Code logo, Rain, Snow, Night Sky, Lightning, Meteor Shower, Analog Clock, Digital Clock | Original `term-animate` artwork and procedural scenes | GPL-3.0-only |
+| Mole Cat | Adapted from [tw93/Mole](https://github.com/tw93/Mole) | GPL-3.0-only |
+| Campy Cat | Adapted from [dropdevrahul/campy](https://github.com/dropdevrahul/campy) | MIT |
+
+The distributed package is GPL-3.0-only. Complete upstream revisions, adaptation details, and retained license notices are in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+
+## Development checks
 
 ```bash
 uv run pytest
@@ -150,3 +138,7 @@ uv run ruff check .
 uv run ty check src
 uv build
 ```
+
+## License
+
+[GPL-3.0-only](LICENSE)
