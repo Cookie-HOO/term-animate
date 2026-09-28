@@ -1,4 +1,10 @@
-"""Offline loader for the frame-only Mole cat adaptation."""
+"""Load a modified GPL-3.0-only Mole cat adaptation.
+
+Source: tw93/Mole, ``cmd/status/view.go``, revision
+``239c90d576c747a65104a12610f4b7952cc9bda2``. The associated frame data
+was transcribed into a declarative format for term-animate. See
+``THIRD_PARTY_NOTICES.md`` and ``packs/licenses/MOLE-GPL-3.0.txt``.
+"""
 
 from __future__ import annotations
 

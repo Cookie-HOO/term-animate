@@ -23,6 +23,17 @@ The distributed catalog is intentionally fixed at nine selection pairs:
 It ships named palettes compatible with ccuv naming: `classic`, `vivid`, `contrast`, `dracula`,
 `catppuccin`, `solarized`, `gruvbox`, `nord`, `github`, `mono`, and `no-color`.
 
+### Sources and licenses
+
+| Effect | Origin | License |
+| --- | --- | --- |
+| Mole Cat | Adapted from [tw93/Mole](https://github.com/tw93/Mole) | GPL-3.0-only |
+| Campy Cat | Adapted from [dropdevrahul/campy](https://github.com/dropdevrahul/campy) | MIT |
+| Rain, Snow, Night Sky, Lightning, Meteor Shower, Analog Clock, Digital Clock | Original `term-animate` procedural scenes | GPL-3.0-only |
+
+The distributed package is GPL-3.0-only. Complete upstream revisions, adaptation details, and retained
+license notices are in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+
 ## Host API
 
 Use `project_curated()` for normal upstream integration. It is pure and stateless: every call

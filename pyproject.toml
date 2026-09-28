@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Standalone terminal-art gallery and host-neutral animation library"
 readme = "README.md"
 license = "GPL-3.0-only"
-license-files = ["LICENSE"]
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
 authors = [{ name = "Cookie HOO" }]
 requires-python = ">=3.11,<3.14"
 dependencies = [

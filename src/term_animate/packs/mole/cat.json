@@ -1,5 +1,6 @@
 {
   "format": "term-animate-mole-frames/v1",
+  "notice": "Modified/transcribed from tw93/Mole cmd/status/view.go at revision 239c90d576c747a65104a12610f4b7952cc9bda2; GPL-3.0-only. See THIRD_PARTY_NOTICES.md and packs/licenses/MOLE-GPL-3.0.txt.",
   "frames": [
     [
       "     /\\_/\\",
