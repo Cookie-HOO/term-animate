@@ -91,7 +91,7 @@ def _claude_code() -> Effect:
         rasters=load_claude_code_frames(_ROOT / "claude-code" / "frames.json"),
         horizontal_motion=HorizontalMotion(columns_per_second=9.0, reverse_frame_mode="identity"),
         presentation=ArtworkPresentation.FIXED,
-        raster_rows=16,
+        raster_rows=6,
     )
 
 

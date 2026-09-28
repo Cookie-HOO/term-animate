@@ -19,8 +19,8 @@ def test_bundled_claude_code_frames_are_shadow_free_and_animated() -> None:
     effect = curated_catalog().effect("claude-code")
     rasters = effect.rasters
     assert len(rasters) == 12
-    assert {(raster.width, raster.height, raster.duration_seconds) for raster in rasters} == {(200, 155, 0.1)}
-    assert all(len(raster.rgba) == 200 * 155 * 4 for raster in rasters)
+    assert {(raster.width, raster.height, raster.duration_seconds) for raster in rasters} == {(212, 155, 0.1)}
+    assert all(len(raster.rgba) == 212 * 155 * 4 for raster in rasters)
     assert all(bytes((115, 119, 128, 255)) not in raster.rgba for raster in rasters)
     assert all(bytes((161, 94, 77, 255)) in raster.rgba for raster in rasters)
     assert all(bytes((10, 11, 16, 255)) in raster.rgba for raster in rasters)
@@ -37,9 +37,9 @@ def test_claude_code_has_fixed_geometry_and_only_shrinks_when_needed() -> None:
     effect = curated_catalog().effect("claude-code")
     normal = raster_geometry(effect.rasters[0], ProjectionRequest(Viewport(100, 30), _capabilities()), fixed_rows=effect.raster_rows)
     narrow = raster_geometry(effect.rasters[0], ProjectionRequest(Viewport(12, 30), _capabilities()), fixed_rows=effect.raster_rows)
-    assert (normal.columns, normal.rows) == (42, 16)
+    assert (normal.columns, normal.rows) == (17, 6)
     assert narrow.columns <= 12
-    assert narrow.rows < 16
+    assert narrow.rows < 6
 
 
 def test_claude_code_traversal_freezes_position_while_frames_advance() -> None:

@@ -2,73 +2,73 @@
   "format": "term-animate-claude-code-frames/v1",
   "frames": [
     {
-      "width": 200,
+      "width": 212,
       "height": 155,
       "duration_seconds": 0.1,
       "payload": "claude-code-0000.rgba"
     },
     {
-      "width": 200,
+      "width": 212,
       "height": 155,
       "duration_seconds": 0.1,
       "payload": "claude-code-0001.rgba"
     },
     {
-      "width": 200,
+      "width": 212,
       "height": 155,
       "duration_seconds": 0.1,
       "payload": "claude-code-0002.rgba"
     },
     {
-      "width": 200,
+      "width": 212,
       "height": 155,
       "duration_seconds": 0.1,
       "payload": "claude-code-0003.rgba"
     },
     {
-      "width": 200,
+      "width": 212,
       "height": 155,
       "duration_seconds": 0.1,
       "payload": "claude-code-0004.rgba"
     },
     {
-      "width": 200,
+      "width": 212,
       "height": 155,
       "duration_seconds": 0.1,
       "payload": "claude-code-0005.rgba"
     },
     {
-      "width": 200,
+      "width": 212,
       "height": 155,
       "duration_seconds": 0.1,
       "payload": "claude-code-0006.rgba"
     },
     {
-      "width": 200,
+      "width": 212,
       "height": 155,
       "duration_seconds": 0.1,
       "payload": "claude-code-0007.rgba"
     },
     {
-      "width": 200,
+      "width": 212,
       "height": 155,
       "duration_seconds": 0.1,
       "payload": "claude-code-0008.rgba"
     },
     {
-      "width": 200,
+      "width": 212,
       "height": 155,
       "duration_seconds": 0.1,
       "payload": "claude-code-0009.rgba"
     },
     {
-      "width": 200,
+      "width": 212,
       "height": 155,
       "duration_seconds": 0.1,
       "payload": "claude-code-0010.rgba"
     },
     {
-      "width": 200,
+      "width": 212,
       "height": 155,
       "duration_seconds": 0.1,
       "payload": "claude-code-0011.rgba"
