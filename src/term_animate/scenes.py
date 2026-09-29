@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from math import cos, pi, sin
@@ -55,6 +56,18 @@ _DIGIT_FONT = {
     "7": ("###", "  #", "  #", "  #", "  #"),
     "8": ("###", "# #", "###", "# #", "###"),
     "9": ("###", "# #", "###", "  #", "###"),
+}
+_WIDE_DIGIT_FONT = {
+    "0": ("#####", "#   #", "#   #", "#   #", "#####"),
+    "1": (" ##  ", "  #  ", "  #  ", "  #  ", "#####"),
+    "2": ("#####", "    #", "#####", "#    ", "#####"),
+    "3": ("#####", "    #", "#####", "    #", "#####"),
+    "4": ("#   #", "#   #", "#####", "    #", "    #"),
+    "5": ("#####", "#    ", "#####", "    #", "#####"),
+    "6": ("#####", "#    ", "#####", "#   #", "#####"),
+    "7": ("#####", "    #", "    #", "    #", "    #"),
+    "8": ("#####", "#   #", "#####", "#   #", "#####"),
+    "9": ("#####", "#   #", "#####", "    #", "#####"),
 }
 
 
@@ -229,7 +242,13 @@ def _styled_analog_rows(now: datetime, tokens: ThemeTokens) -> tuple[StyledRow, 
     )
 
 
-def _styled_digital_rows(now: datetime, tokens: ThemeTokens) -> tuple[StyledRow, ...]:
+def _styled_digital_rows(
+    now: datetime,
+    tokens: ThemeTokens,
+    *,
+    font: Mapping[str, tuple[str, ...]] = _DIGIT_FONT,
+    digit_gap_columns: int = 1,
+) -> tuple[StyledRow, ...]:
     digits = f"{now.hour:02}{now.minute:02}{now.second:02}"
     separator = (" ", ".", " ", ".", " ") if now.second % 2 == 0 else (" ", " ", " ", " ", " ")
     groups = (digits[:2], digits[2:4], digits[4:])
@@ -239,9 +258,9 @@ def _styled_digital_rows(now: datetime, tokens: ThemeTokens) -> tuple[StyledRow,
         for group_index, group in enumerate(groups):
             for digit_index, digit in enumerate(group):
                 if digit_index:
-                    cells.append(StyledCell(" "))
+                    cells.extend(StyledCell(" ") for _ in range(digit_gap_columns))
                 color = (tokens.foreground, tokens.accent, tokens.secondary_accent)[group_index]
-                cells.extend(StyledCell(character, color if character != " " else None) for character in _DIGIT_FONT[digit][row_index])
+                cells.extend(StyledCell(character, color if character != " " else None) for character in font[digit][row_index])
             if group_index < len(groups) - 1:
                 cells.append(StyledCell(" "))
                 separator_character = separator[row_index]
@@ -785,9 +804,18 @@ def project_scene(scene: str, request: ProjectionRequest, *, responsive_fill: bo
 
     now = _clock_time(request)
     elapsed = request.monotonic_seconds * request.animation_rate
-    if scene == "ascii-digital-clock":
+    if scene in {"ascii-compact-digital-clock", "ascii-digital-clock"}:
+        font = _DIGIT_FONT if scene == "ascii-compact-digital-clock" else _WIDE_DIGIT_FONT
         return ProjectedFrame(
-            project_styled_rows(_styled_digital_rows(now, request.theme), request),
+            project_styled_rows(
+                _styled_digital_rows(
+                    now,
+                    request.theme,
+                    font=font,
+                    digit_gap_columns=1 if scene == "ascii-compact-digital-clock" else 2,
+                ),
+                request,
+            ),
             now.second,
             _deadline(request),
             "text",

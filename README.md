@@ -85,13 +85,13 @@ frame = project(
 )
 ```
 
-All five nature scenes accept host-selected `LogicalState.ACTIVE` or `LogicalState.IDLE`; idle scenes have no redraw deadline. Clocks consume timezone-aware `wall_time`, and hosts can control cat traversal separately from source-frame animation.
+All five stateful nature scenes accept host-selected `LogicalState.ACTIVE` or `LogicalState.IDLE`; idle scenes have no redraw deadline. Clocks consume timezone-aware `wall_time`, and hosts can control cat traversal separately from source-frame animation.
 
 See [`docs/embedding.md`](docs/embedding.md) for host ownership, timing, state, traversal, and viewport behavior in detail.
 
 ## Curated effects and themes
 
-The fixed catalog contains ten host-selectable effects:
+The fixed catalog contains eleven host-selectable effects:
 
 | Category | Style | Effect ID |
 | --- | --- | --- |
@@ -104,7 +104,10 @@ The fixed catalog contains ten host-selectable effects:
 | `nature` | `lightning` | `lightning` |
 | `nature` | `meteor-shower` | `meteor-shower` |
 | `time` | `analog-clock` | `analog-clock` |
+| `time` | `compact-digital-clock` | `compact-digital-clock` |
 | `time` | `digital-clock` | `digital-clock` |
+
+`analog-clock` uses analog hands. `compact-digital-clock` uses compact block digits, while `digital-clock` uses a wider seven-segment treatment; both digital clocks blink their separators.
 
 Named palettes are compatible with ccuv naming: `classic`, `vivid`, `contrast`, `dracula`, `catppuccin`, `solarized`, `gruvbox`, `nord`, `github`, `mono`, and `no-color`.
 
@@ -124,7 +127,7 @@ A future ccuv integration owns layout, resizing, rendering, terminal lifecycle, 
 
 | Effect | Origin | License |
 | --- | --- | --- |
-| Claude Code logo, Rain, Snow, Night Sky, Lightning, Meteor Shower, Analog Clock, Digital Clock | Original `term-animate` artwork and procedural scenes | GPL-3.0-only |
+| Claude Code logo, Rain, Snow, Night Sky, Lightning, Meteor Shower, Analog Clock, Compact Digital Clock, Digital Clock | Original `term-animate` artwork and deterministic procedural scenes | GPL-3.0-only |
 | Mole Cat | Adapted from [tw93/Mole](https://github.com/tw93/Mole) | GPL-3.0-only |
 | Campy Cat | Adapted from [dropdevrahul/campy](https://github.com/dropdevrahul/campy) | MIT |
 

@@ -5,7 +5,7 @@ from term_animate.catalog import embedding_targets
 from term_animate.models import DerivationKind, OwnershipClass
 
 
-def test_curated_catalog_is_the_focused_ten_effect_series() -> None:
+def test_curated_catalog_is_the_focused_eleven_effect_series() -> None:
     catalog = curated_catalog()
     assert [pack.id for pack in catalog.packs] == ["curated-ten"]
     assert [effect.id for effect in catalog.effects()] == [
@@ -18,6 +18,7 @@ def test_curated_catalog_is_the_focused_ten_effect_series() -> None:
         "lightning",
         "meteor-shower",
         "analog-clock",
+        "compact-digital-clock",
         "digital-clock",
     ]
     for retired_id in (
@@ -31,9 +32,11 @@ def test_curated_catalog_is_the_focused_ten_effect_series() -> None:
             catalog.effect(retired_id)
 
 
-def test_nature_scenes_are_the_stateful_curated_effects() -> None:
+def test_animated_scenes_are_the_stateful_curated_effects() -> None:
     stateful = [effect for effect in curated_catalog().effects() if effect.supports_state]
-    assert [effect.id for effect in stateful] == ["rain", "snow", "night-sky", "lightning", "meteor-shower"]
+    assert [effect.id for effect in stateful] == [
+        "rain", "snow", "night-sky", "lightning", "meteor-shower",
+    ]
     assert stateful[0].ownership == OwnershipClass.CCUV_HOSTED_STATEFUL
 
 

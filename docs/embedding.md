@@ -56,9 +56,9 @@ never performs terminal I/O, creates a timer/thread, reads provider/application 
 ## Time, state, and traversal
 
 Clocks consume a timezone-aware `wall_time`; a caller should supply the current display time on every
-call. All five `nature` scenes (`rain`, `snow`, `night-sky`, `lightning`, and `meteor-shower`) accept
-only `LogicalState.ACTIVE` / `LogicalState.IDLE`; the host supplies an effective monotonic nature
-clock if pausing needs continuity. Cats can use `traversal_mode="stationary"`, or a
+call. The five `nature` scenes accept only `LogicalState.ACTIVE` / `LogicalState.IDLE`; idle scenes
+return no redraw deadline. The host supplies an effective monotonic clock if pausing needs continuity.
+Cats can use `traversal_mode="stationary"`, or a
 host can freeze a sampled location with `traversal_monotonic_seconds` while keeping
 `monotonic_seconds` live for source-frame animation.
 

@@ -424,11 +424,16 @@ def test_ascii_clocks_use_aspect_corrected_and_block_digit_art() -> None:
         catalog.effect("analog-clock"),
         ProjectionRequest(Viewport(40, 13), capabilities, wall_time=now),
     )
+    compact_digital = project_effect(
+        catalog.effect("compact-digital-clock"),
+        ProjectionRequest(Viewport(45, 6), capabilities, wall_time=now),
+    )
     digital = project_effect(
         catalog.effect("digital-clock"),
-        ProjectionRequest(Viewport(40, 6), capabilities, wall_time=now),
+        ProjectionRequest(Viewport(55, 6), capabilities, wall_time=now),
     )
     analog_text = "\n".join(row.text for row in analog.rows)
+    compact_digital_text = "\n".join(row.text for row in compact_digital.rows)
     digital_text = "\n".join(row.text for row in digital.rows)
     assert analog_text.count(".") > 20
     assert all(str(number) in analog_text for number in range(1, 13))
@@ -445,9 +450,14 @@ def test_ascii_clocks_use_aspect_corrected_and_block_digit_art() -> None:
     assert all(display_width(row.text) == 40 for row in analog.rows)
     assert any(glyph in analog_text for glyph in "-|/\\")
     assert "h" not in analog_text and "m" not in analog_text and "s" not in analog_text
-    assert digital_text.count("#") > 30
-    assert "12:34:56" not in digital_text
-    assert digital.next_deadline_seconds == 1.0
+    assert compact_digital_text.count("#") > 30
+    assert "12:34:56" not in compact_digital_text
+    assert digital_text.count("#") > compact_digital_text.count("#")
+    assert max(display_width(row.text.strip()) for row in digital.rows) > max(
+        display_width(row.text.strip()) for row in compact_digital.rows
+    )
+    assert digital.frame_index == compact_digital.frame_index
+    assert digital.next_deadline_seconds == compact_digital.next_deadline_seconds == 1.0
 
 
 def test_ascii_clock_artwork_uses_theme_roles_and_respects_no_color() -> None:

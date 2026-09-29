@@ -20,7 +20,7 @@ from term_animate import (
 CAPABILITIES = TerminalCapabilities(color="truecolor")
 
 
-def test_curated_catalog_has_the_stable_ten_effects() -> None:
+def test_curated_catalog_has_the_stable_eleven_effects() -> None:
     catalog = curated_catalog()
     assert [pack.id for pack in catalog.packs] == ["curated-ten"]
     assert [(effect.category, effect.style, effect.id, effect.name) for effect in catalog.effects()] == [
@@ -33,6 +33,7 @@ def test_curated_catalog_has_the_stable_ten_effects() -> None:
         (EffectCategory.NATURE, "lightning", "lightning", "Lightning"),
         (EffectCategory.NATURE, "meteor-shower", "meteor-shower", "Meteor Shower"),
         (EffectCategory.TIME, "analog-clock", "analog-clock", "Analog Clock"),
+        (EffectCategory.TIME, "compact-digital-clock", "compact-digital-clock", "Compact Digital Clock"),
         (EffectCategory.TIME, "digital-clock", "digital-clock", "Digital Clock"),
     ]
 
@@ -41,7 +42,7 @@ def test_curated_effects_declare_category_presentation_strategies() -> None:
     catalog = curated_catalog()
     assert all(
         catalog.effect(effect_id).presentation == ArtworkPresentation.FIXED
-        for effect_id in ("claude-code", "mole-cat", "campy-cat", "analog-clock", "digital-clock")
+        for effect_id in ("claude-code", "mole-cat", "campy-cat", "analog-clock", "compact-digital-clock", "digital-clock")
     )
     assert all(
         catalog.effect(effect_id).presentation == ArtworkPresentation.RESPONSIVE_FILL
@@ -52,6 +53,7 @@ def test_curated_effects_declare_category_presentation_strategies() -> None:
 def test_select_effect_accepts_category_values_and_rejects_unknown_values() -> None:
     assert select_effect("animal", "mole-cat").id == "mole-cat"
     assert select_effect(EffectCategory.TIME, "digital-clock").id == "digital-clock"
+    assert select_effect("time", "compact-digital-clock").id == "compact-digital-clock"
     with pytest.raises(ValueError, match="unknown effect category"):
         select_effect("unknown", "mole-cat")
     with pytest.raises(ValueError, match="unknown effect category"):

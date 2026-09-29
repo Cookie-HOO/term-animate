@@ -1,8 +1,8 @@
 # Asset policy
 
-The distributed curated catalog is fixed to nine effects: Mole Cat, Campy Cat, Rain, Snow, Night Sky,
-Lightning, Meteor Shower, Analog Clock, and Digital Clock. Only the two cat adaptations include
-third-party visual source material, with pinned provenance and license notices in
+The distributed curated catalog is fixed to eleven effects: Claude Code logo, Mole Cat, Campy Cat, Rain,
+Snow, Night Sky, Lightning, Meteor Shower, Analog Clock, Compact Digital Clock, and Digital Clock. Only the two
+cat adaptations include third-party visual source material, with pinned provenance and license notices in
 [`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).
 
 Generic local image preparation is intentionally retained but separate. `term-animate prepare image`

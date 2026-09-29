@@ -20,6 +20,11 @@ def test_list_command_shows_only_curated_effects(capsys) -> None:
     assert "Meteor Shower" in output
     assert "Analog Clock" in output
     assert "Digital Clock" in output
+    assert "compact-digital-clock" in output
+    assert "duck-pond" not in output
+    assert "bicycle-ride" not in output
+    assert "paper-plane" not in output
+    assert "manta-ray" not in output
     assert "durdraw-rain" not in output
 
 
@@ -36,6 +41,7 @@ def test_list_json_exposes_the_single_curated_pack(capsys) -> None:
         "lightning",
         "meteor-shower",
         "analog-clock",
+        "compact-digital-clock",
         "digital-clock",
     ]
 
